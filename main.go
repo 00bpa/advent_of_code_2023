@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"os"
 	"strings"
@@ -12,6 +13,10 @@ func check(e error) {
 	}
 }
 
+func trimWhitespace(input string) string {
+	return strings.Trim(input, " \t\n\r")
+}
+
 func readFileAsLines(filename string) []string {
 	// Read the file
 	dat, err := os.ReadFile(filename)
@@ -21,7 +26,15 @@ func readFileAsLines(filename string) []string {
 }
 
 func main() {
-	lines := readFileAsLines("data/day01_input.txt")
-	result := day01(lines)
-	fmt.Printf("Result: %v\n", result)
+	flag.Parse()
+	for _, arg := range flag.Args() {
+		switch arg {
+		case "day01":
+			day01()
+		case "day02":
+			day02()
+		default:
+			fmt.Printf("Unknown parameter: %s\n", arg)
+		}
+	}
 }
