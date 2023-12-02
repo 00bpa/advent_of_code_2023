@@ -49,7 +49,7 @@ func divideGameAndData(line string) (int, string) {
 	parts := strings.Split(line, ":")
 	gameNum, err := strconv.Atoi(numberRegexp.FindString(parts[0]))
 	check(err)
-	return gameNum, strings.Trim(parts[1], " \t\n\r")
+	return gameNum, trimWhitespace(parts[1])
 }
 
 func gameDataFits(gameData *map[string]int, red int, green int, blue int) bool {
