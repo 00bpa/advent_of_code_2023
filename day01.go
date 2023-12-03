@@ -60,8 +60,8 @@ func parseFirstAndLastDigit(line string) int {
 	return firstDigit*10 + secondDigit
 }
 
-func day01() {
-	lines := readFileAsLines("data/day01_input.txt")
+func day01_exec(input string) int {
+	lines := readFileAsLines(input)
 	result := 0
 	for _, line := range lines {
 		if len(line) == 0 {
@@ -71,5 +71,10 @@ func day01() {
 		result += num
 	}
 
+	return result
+}
+
+func day01() {
+	result := day01_exec("data/day01_input.txt")
 	fmt.Printf("Result: %v\n", result)
 }

@@ -61,11 +61,11 @@ func gameDataFits(gameData *map[string]int, red int, green int, blue int) bool {
 	return false
 }
 
-func day02() {
-	input := readFileAsLines("data/day02_input.txt")
+func day02_exec(inputfile string, f func(*int, int, *map[string]int)) int {
+	input := readFileAsLines(inputfile)
 
 	sum := 0
-	sum2 := 0
+
 	for _, i := range input {
 		if len(trimWhitespace(i)) == 0 {
 			continue
@@ -73,14 +73,35 @@ func day02() {
 		gameNum, gameLine := divideGameAndData(i)
 		gameData := parseGameData(gameLine)
 
-		// Part 1
-		if gameDataFits(gameData, 12, 13, 14) {
-			sum += gameNum
-		}
-
-		// Part 2
-		sum2 += (*gameData)["blue"] * (*gameData)["red"] * (*gameData)["green"]
+		f(&sum, gameNum, gameData)
 	}
+
+	return sum
+}
+
+func day02_part1(inputfile string) int {
+	return day02_exec(inputfile,
+		func(sum *int, gameNum int, gameData *map[string]int) {
+			// Part 1
+			if gameDataFits(gameData, 12, 13, 14) {
+				*sum += gameNum
+			}
+		})
+}
+
+func day02_part2(inputfile string) int {
+	return day02_exec(inputfile,
+		func(sum *int, gameNum int, gameData *map[string]int) {
+			// Part 2
+			*sum += (*gameData)["blue"] * (*gameData)["red"] * (*gameData)["green"]
+		})
+}
+
+func day02() {
+	input := "data/day02_input.txt"
+
+	sum := day02_part1(input)
+	sum2 := day02_part2(input)
 
 	fmt.Printf("Sum: %d\n", sum)
 	fmt.Printf("Sum2: %d\n", sum2)

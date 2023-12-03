@@ -25,6 +25,30 @@ func readFileAsLines(filename string) []string {
 	return strings.Split(strings.ReplaceAll(string(dat), "\r\n", "\n"), "\n")
 }
 
+func max(a int, b int) int {
+	if a >= b {
+		return a
+	}
+	return b
+}
+
+func min(a int, b int) int {
+	if a <= b {
+		return a
+	}
+	return b
+}
+
+func stringSliceToByteArraySlice(input []string) [][]byte {
+	data := [][]byte{}
+
+	for _, inp := range input {
+		data = append(data, []byte(inp))
+	}
+
+	return data
+}
+
 func main() {
 	flag.Parse()
 	for _, arg := range flag.Args() {
@@ -33,6 +57,8 @@ func main() {
 			day01()
 		case "day02":
 			day02()
+		case "day03":
+			day03()
 		default:
 			fmt.Printf("Unknown parameter: %s\n", arg)
 		}
