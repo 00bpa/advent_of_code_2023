@@ -1,127 +1,182 @@
 package main
 
 import (
-	"errors"
 	"fmt"
+	"internal/set"
+	"regexp"
 	"strconv"
 )
 
-func cellIsSymbol(c byte) bool {
-	return !cellIsDigit(c) && c != '.'
-}
-
-func cellIsDigit(c byte) bool {
-	return c <= '9' && c >= '0'
-}
-
-type Coords struct {
+type Point struct {
 	x int
 	y int
 }
 
-type Size struct {
-	w int
-	h int
+type Token struct {
+	position Point
+	length   int
+	content  string
 }
 
-func (s Size) Valid(coords Coords) bool {
-	return !(coords.x < 0) &&
-		!(coords.y < 0) &&
-		!(coords.x >= s.w) &&
-		!(coords.y >= s.h)
+type Parser struct {
+	input   [][]byte
+	numbers []*Token
+	symbols []*Token
 }
 
-func properCoordinates(coords Coords, size Size) []Coords {
-	coordList := []Coords{
-		{coords.x - 1, coords.y - 1},
-		{coords.x - 1, coords.y},
-		{coords.x - 1, coords.y + 1},
-		{coords.x, coords.y - 1},
-		{coords.x, coords.y + 1},
-		{coords.x + 1, coords.y - 1},
-		{coords.x + 1, coords.y},
-		{coords.x + 1, coords.y + 1},
+func newParser(input [][]byte) *Parser {
+	return &Parser{
+		input,
+		[]*Token{},
+		[]*Token{},
 	}
+}
 
-	results := []Coords{}
-	for _, c := range coordList {
-		if size.Valid(c) {
-			results = append(results, c)
+func (p *Parser) parse() {
+	re := regexp.MustCompile(`\d+`)
+
+	// Find numbers
+	for y, line := range p.input {
+		positions := re.FindAllIndex(line, -1)
+		if positions == nil {
+			continue
+		}
+		for _, pos := range positions {
+			from := pos[0]
+			to := pos[1]
+
+			token := &Token{
+				position: Point{from, y},
+				length:   to - from,
+				content:  string(line[from:to]),
+			}
+			p.numbers = append(p.numbers, token)
 		}
 	}
 
-	return results
-}
+	re = regexp.MustCompile(`[^.\d]`)
+	// find symbols
+	for y, line := range p.input {
+		positions := re.FindAllIndex(line, -1)
+		if positions == nil {
+			continue
+		}
+		for _, pos := range positions {
+			from := pos[0]
+			to := pos[1]
 
-func isNextToSymbol(cells [][]byte, x int, y int) bool {
-	h := len(cells)
-	if h == 0 {
-		return false
-	}
-	w := len(cells[0])
-	if w == 0 {
-		return false
-	}
-
-	coords := properCoordinates(Coords{x, y}, Size{w, h})
-
-	for _, c := range coords {
-		if cellIsSymbol(cells[c.y][c.x]) {
-			return true
+			token := &Token{
+				position: Point{from, y},
+				length:   to - from,
+				content:  string(line[from:to]),
+			}
+			p.symbols = append(p.symbols, token)
 		}
 	}
-
-	return false
 }
 
-func getNextCell(input []byte, pos int) (byte, error) {
-	w := len(input)
-	if pos+1 < w {
-		return input[pos+1], nil
+func (p *Parser) findNumberAt(point Point) *Token {
+	for _, n := range p.numbers {
+		if point.y == n.position.y {
+			if point.x >= n.position.x && point.x < (n.position.x+n.length) {
+				return n
+			}
+		}
 	}
-	return 0, errors.New("out of bounds")
+	return nil
+}
+
+func (p *Parser) findSymbolAt(point Point) *Token {
+	for _, n := range p.symbols {
+		if point.y == n.position.y {
+			if point.x >= n.position.x && point.x < (n.position.x+n.length) {
+				return n
+			}
+		}
+	}
+	return nil
+}
+
+func surroundingPositions(token *Token) []Point {
+	positions := []Point{}
+
+	x := token.position.x
+	y := token.position.y
+	l := token.length
+
+	// Upper line
+	positions = append(positions, Point{x - 1, y - 1})
+	positions = append(positions, Point{x + l, y - 1})
+	for i := 0; i < l; i++ {
+		positions = append(positions, Point{x + i, y - 1})
+	}
+
+	// Mid line
+	positions = append(positions, Point{x - 1, y})
+	positions = append(positions, Point{x + l, y})
+
+	// Lower line
+	positions = append(positions, Point{x - 1, y + 1})
+	positions = append(positions, Point{x + l, y + 1})
+	for i := 0; i < l; i++ {
+		positions = append(positions, Point{x + i, y + 1})
+	}
+
+	return positions
 }
 
 func parseDay03_part1(input [][]byte) int {
-	var results []int
+	parser := newParser(input)
+	parser.parse()
 
-	for y, line := range input {
-		if len(line) == 0 {
-			continue
-		}
+	sum := 0
 
-		numBuf := []byte{}
-		nextToSymbol := false
-
-		for x, cell := range line {
-			if cellIsDigit(cell) {
-				numBuf = append(numBuf, cell)
-				if !nextToSymbol {
-					nextToSymbol = isNextToSymbol(input, x, y)
-				}
-			}
-
-			c, err := getNextCell(line, x)
-			if (!cellIsDigit(c) || err != nil) &&
-				len(numBuf) > 0 {
-				// Next element is not a digit, we can parse the number here.
-				// Otherwise we get a problem at the end of the line
-				numStr := string(numBuf)
-				numBuf = []byte{}
-				if nextToSymbol {
-					nextToSymbol = false
-					num, err := strconv.Atoi(numStr)
-					check(err)
-					results = append(results, num)
-				}
+	for _, token := range parser.numbers {
+		for _, pos := range surroundingPositions(token) {
+			if parser.findSymbolAt(pos) != nil {
+				num, err := strconv.Atoi(token.content)
+				check(err)
+				sum += num
 			}
 		}
 	}
 
-	// Sum up numbers
+	return sum
+}
+
+func parseDay03_part2(input [][]byte) int {
+	parser := newParser(input)
+	parser.parse()
+
 	sum := 0
-	for _, i := range results {
-		sum += i
+
+	for _, token := range parser.symbols {
+		if token.content != "*" {
+			continue
+		}
+
+		numbers := set.Set{}
+
+		for _, pos := range surroundingPositions(token) {
+			t := parser.findNumberAt(pos)
+			if t != nil {
+				numbers.Insert(t)
+			}
+		}
+
+		if numbers.Size() > 1 {
+			product := 1
+			for t := range numbers {
+				tok, ok := t.(*Token)
+				if ok {
+					num, err := strconv.Atoi(tok.content)
+					check(err)
+					product *= num
+				}
+			}
+
+			sum += product
+		}
 	}
 
 	return sum
@@ -129,8 +184,9 @@ func parseDay03_part1(input [][]byte) int {
 
 func day03() {
 	input := readFileAsLines("data/day03_input.txt")
-
 	result := parseDay03_part1(stringSliceToByteArraySlice(input))
+	result2 := parseDay03_part2(stringSliceToByteArraySlice(input))
 
 	fmt.Printf("Day03 Result: %d\n", result)
+	fmt.Printf("Day03 Result2: %d\n", result2)
 }

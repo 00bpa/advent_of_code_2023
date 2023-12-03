@@ -17,26 +17,18 @@ func trimWhitespace(input string) string {
 	return strings.Trim(input, " \t\n\r")
 }
 
-func readFileAsLines(filename string) []string {
+func readFile(filename string) []byte {
 	// Read the file
 	dat, err := os.ReadFile(filename)
 	check(err)
+	return dat
+}
+
+func readFileAsLines(filename string) []string {
+	dat := readFile(filename)
+
 	// Split the lines
 	return strings.Split(strings.ReplaceAll(string(dat), "\r\n", "\n"), "\n")
-}
-
-func max(a int, b int) int {
-	if a >= b {
-		return a
-	}
-	return b
-}
-
-func min(a int, b int) int {
-	if a <= b {
-		return a
-	}
-	return b
 }
 
 func stringSliceToByteArraySlice(input []string) [][]byte {

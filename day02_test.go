@@ -8,10 +8,10 @@ import (
 
 func TestDay02_part1(t *testing.T) {
 	input := "data/day02_input.txt"
-	assert.Equal(t, day02_part1(input), 2406)
+	assert.Equal(t, 2406, day02_part1(input))
 }
 
 func TestDay02_part2(t *testing.T) {
 	input := "data/day02_input.txt"
-	assert.Equal(t, day02_part2(input), 78375)
+	assert.Equal(t, 78375, day02_part2(input))
 }

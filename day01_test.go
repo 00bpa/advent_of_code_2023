@@ -8,5 +8,5 @@ import (
 
 func TestDay01_part2(t *testing.T) {
 	result := day01_exec("data/day01_input.txt")
-	assert.Equal(t, result, 54770)
+	assert.Equal(t, 54770, result)
 }
