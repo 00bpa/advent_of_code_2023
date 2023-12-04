@@ -65,12 +65,8 @@ func day04_part2(filename string) int {
 	input := readFileAsLines(filename)
 	multiplierList := make([]int, len(input))
 
-	// Initialize
-	for x := range multiplierList {
-		multiplierList[x] = 1
-	}
-
 	for i, line := range input {
+		multiplierList[i] += 1
 		winningNumbers, ourNumbers := parseScratchCard(line)
 		matches := numberOfScratchcardMatches(winningNumbers, ourNumbers)
 
