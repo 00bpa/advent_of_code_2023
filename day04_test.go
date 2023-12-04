@@ -23,5 +23,5 @@ func TestDay04_part2_testdata(t *testing.T) {
 
 func TestDay04_part2(t *testing.T) {
 	result := day04_part2("data/day04_part1.txt")
-	assert.Equal(t, 0, result)
+	assert.Equal(t, 7185540, result)
 }
