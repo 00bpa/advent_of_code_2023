@@ -9,8 +9,8 @@ import (
 	"strings"
 )
 
-func turnStringNumbersToNumbers(l []string) *set.Set {
-	r := &set.Set{}
+func turnStringNumbersToNumbers(l []string) *set.Set[int] {
+	r := set.NewSet[int]()
 	for _, x := range l {
 		num, err := strconv.Atoi(x)
 		check(err)
@@ -19,12 +19,12 @@ func turnStringNumbersToNumbers(l []string) *set.Set {
 	return r
 }
 
-func numberOfScratchcardMatches(num1 *set.Set, num2 *set.Set) int {
+func numberOfScratchcardMatches(num1 *set.Set[int], num2 *set.Set[int]) int {
 	return len(*(num1.Intersection(num2)))
 }
 
-func parseScratchCard(card string) (*set.Set, *set.Set) {
-	winningNumbers, numbers := &set.Set{}, &set.Set{}
+func parseScratchCard(card string) (*set.Set[int], *set.Set[int]) {
+	winningNumbers, numbers := set.NewSet[int](), set.NewSet[int]()
 	// Parse out the Card Nr part
 	parts := strings.Split(card, ":")
 	if len(parts) < 2 {

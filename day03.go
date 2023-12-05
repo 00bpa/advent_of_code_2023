@@ -155,7 +155,7 @@ func parseDay03_part2(input [][]byte) int {
 			continue
 		}
 
-		numbers := set.Set{}
+		numbers := set.Set[*Token]{}
 
 		for _, pos := range surroundingPositions(token) {
 			t := parser.findNumberAt(pos)
@@ -167,12 +167,9 @@ func parseDay03_part2(input [][]byte) int {
 		if numbers.Size() > 1 {
 			product := 1
 			for t := range numbers {
-				tok, ok := t.(*Token)
-				if ok {
-					num, err := strconv.Atoi(tok.content)
-					check(err)
-					product *= num
-				}
+				num, err := strconv.Atoi(t.content)
+				check(err)
+				product *= num
 			}
 
 			sum += product

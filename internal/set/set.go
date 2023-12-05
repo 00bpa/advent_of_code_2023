@@ -1,8 +1,12 @@
 package set
 
-type Set map[interface{}]struct{}
+type Set[E comparable] map[E]struct{}
 
-func (s *Set) Insert(value interface{}) {
+func NewSet[E comparable]() *Set[E] {
+	return &Set[E]{}
+}
+
+func (s *Set[E]) Insert(value E) {
 	_, ok := (*s)[value]
 
 	if !ok {
@@ -10,8 +14,8 @@ func (s *Set) Insert(value interface{}) {
 	}
 }
 
-func (s *Set) Intersection(otherSet *Set) *Set {
-	resultSet := make(Set)
+func (s *Set[E]) Intersection(otherSet *Set[E]) *Set[E] {
+	resultSet := make(Set[E])
 	for k := range *s {
 		_, ok := (*otherSet)[k]
 
@@ -23,6 +27,6 @@ func (s *Set) Intersection(otherSet *Set) *Set {
 	return &resultSet
 }
 
-func (s *Set) Size() int {
+func (s *Set[E]) Size() int {
 	return len(*s)
 }
