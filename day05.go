@@ -2,8 +2,8 @@ package main
 
 import (
 	"fmt"
+	"math"
 	"regexp"
-	"sort"
 	"strconv"
 )
 
@@ -90,7 +90,7 @@ func day05_part1(input []string) int {
 	tempToHumidity := parseAlmanacParagraph(input, "temperature-to-humidity")
 	humidityToLoc := parseAlmanacParagraph(input, "humidity-to-location")
 
-	results := []int{}
+	result := math.MaxInt32
 
 	for _, i := range seeds {
 		soil := findAlmanacMapping(seedToSoil, i)
@@ -100,26 +100,53 @@ func day05_part1(input []string) int {
 		temp := findAlmanacMapping(lightToTemp, light)
 		humidity := findAlmanacMapping(tempToHumidity, temp)
 		loc := findAlmanacMapping(humidityToLoc, humidity)
-		results = append(results, loc)
+		if loc < result {
+			result = loc
+		}
 	}
 
-	sort.Ints(results)
-
-	if len(results) == 0 {
-		return 0
-	} else {
-		return results[0]
-	}
+	return result
 }
 
 func day05_part2(input []string) int {
+	seeds := parseSeeds(input)
+	seedToSoil := parseAlmanacParagraph(input, "seed-to-soil")
+	soilToFertilizer := parseAlmanacParagraph(input, "soil-to-fertilizer")
+	fertilizerToWater := parseAlmanacParagraph(input, "fertilizer-to-water")
+	waterToLight := parseAlmanacParagraph(input, "water-to-light")
+	lightToTemp := parseAlmanacParagraph(input, "light-to-temperature")
+	tempToHumidity := parseAlmanacParagraph(input, "temperature-to-humidity")
+	humidityToLoc := parseAlmanacParagraph(input, "humidity-to-location")
 
-	return 0
+	result := math.MaxInt32
+
+	for i := 0; i < len(seeds); i++ {
+		from := seeds[i]
+		i++
+		length := seeds[i]
+
+		for num := from; num < from+length; num++ {
+			soil := findAlmanacMapping(seedToSoil, num)
+			fertilizer := findAlmanacMapping(soilToFertilizer, soil)
+			water := findAlmanacMapping(fertilizerToWater, fertilizer)
+			light := findAlmanacMapping(waterToLight, water)
+			temp := findAlmanacMapping(lightToTemp, light)
+			humidity := findAlmanacMapping(tempToHumidity, temp)
+			loc := findAlmanacMapping(humidityToLoc, humidity)
+			if loc < result {
+				result = loc
+			}
+		}
+	}
+
+	return result
 }
 
 func day05() {
 	input := readFileAsLines("data/day05_input.txt")
 	result1 := day05_part1(input)
+	result2 := day05_part2(input)
 
 	fmt.Printf("Day 05 Result 1: %d\n", result1)
+	fmt.Printf("Day 05 Result 2: %d\n", result2)
 }
