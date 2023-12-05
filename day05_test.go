@@ -11,3 +11,9 @@ func TestDay05_part1_testdata(t *testing.T) {
 	result := day05_part1(input)
 	assert.Equal(t, 35, result)
 }
+
+func TestDay05_part1(t *testing.T) {
+	input := readFileAsLines("data/day05_input.txt")
+	result := day05_part1(input)
+	assert.Equal(t, 26273516, result)
+}

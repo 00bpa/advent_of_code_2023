@@ -67,25 +67,17 @@ func parseAlmanacParagraph(input []string, paragraph string) [][]int {
 }
 
 func findAlmanacMapping(input [][]int, num int) int {
-	mapping := map[int]int{}
+	for _, i := range input {
+		from := i[1]
+		to := i[0]
+		length := i[2]
 
-	for i := 0; i <= num; i++ {
-		mapping[i] = i
-	}
-
-	for _, remaps := range input {
-		from := remaps[1]
-		to := remaps[0]
-		length := remaps[2]
-
-		for i, j := from, to; i < from+length; {
-			mapping[i] = j
-			i += 1
-			j += 1
+		if num >= from && num < from+length {
+			return to + (num - from)
 		}
 	}
 
-	return mapping[num]
+	return num
 }
 
 func day05_part1(input []string) int {
