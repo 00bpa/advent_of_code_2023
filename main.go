@@ -63,6 +63,8 @@ func main() {
 			day08()
 		case "day09":
 			day09()
+		case "day10":
+			day10()
 		default:
 			fmt.Printf("Unknown parameter: %s\n", arg)
 		}
