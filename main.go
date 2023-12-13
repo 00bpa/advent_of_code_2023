@@ -41,6 +41,14 @@ func stringSliceToByteArraySlice(input []string) [][]byte {
 	return data
 }
 
+func abs(a int) int {
+	if a < 0 {
+		return -a
+	} else {
+		return a
+	}
+}
+
 func main() {
 	flag.Parse()
 	for _, arg := range flag.Args() {
@@ -65,6 +73,8 @@ func main() {
 			day09()
 		case "day10":
 			day10()
+		case "day11":
+			day11()
 		default:
 			fmt.Printf("Unknown parameter: %s\n", arg)
 		}
