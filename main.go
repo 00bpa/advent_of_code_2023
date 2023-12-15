@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"strconv"
 	"strings"
 )
 
@@ -11,6 +12,12 @@ func check(e error) {
 	if e != nil {
 		panic(e)
 	}
+}
+
+func parseInt(input string) int {
+	num, err := strconv.Atoi(input)
+	check(err)
+	return num
 }
 
 func trimWhitespace(input string) string {
@@ -75,6 +82,8 @@ func main() {
 			day10()
 		case "day11":
 			day11()
+		case "day12":
+			day12()
 		default:
 			fmt.Printf("Unknown parameter: %s\n", arg)
 		}

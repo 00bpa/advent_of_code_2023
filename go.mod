@@ -11,7 +11,12 @@ require (
 )
 
 require internal/set v1.0.0
+
 replace internal/set => ./internal/set
 
-require internal/stack v1.0.0
+require (
+	gonum.org/v1/gonum v0.14.0
+	internal/stack v1.0.0
+)
+
 replace internal/stack => ./internal/stack
