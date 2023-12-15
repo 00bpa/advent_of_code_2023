@@ -79,7 +79,7 @@ func expandUniverse(input [][]galaxyTile, mult int) [][]galaxyTile {
 	for y := 0; y < len(input); y++ {
 		if lineHasNoGalaxies(input[y]) {
 			for x := 0; x < len(input[y]); x++ {
-				input[y][x].ysize *= mult
+				input[y][x].ysize = mult
 			}
 		}
 	}
@@ -92,7 +92,7 @@ func expandUniverse(input [][]galaxyTile, mult int) [][]galaxyTile {
 		}
 		if lineHasNoGalaxies(temp) {
 			for y := 0; y < len(input); y++ {
-				input[y][x].xsize *= mult
+				input[y][x].xsize = mult
 			}
 		}
 	}
@@ -196,4 +196,5 @@ func day11() {
 	result2 := day11_part2(galaxy)
 	fmt.Printf("day11 result 1: %d\n", result1)
 	fmt.Printf("day11 result 2: %d\n", result2)
+
 }

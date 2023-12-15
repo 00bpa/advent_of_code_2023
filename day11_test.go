@@ -122,6 +122,11 @@ func TestDay11_part2_testdata2(t *testing.T) {
 	assert.Equal(t, 8410, day11_exec(stringsToGalaxy(input), 100))
 }
 
+func TestDay11_part2(t *testing.T) {
+	input := readFileAsLines("data/day11_input.txt")
+	assert.Equal(t, 746207878188, day11_part2(stringsToGalaxy(input)))
+}
+
 func TestDay11_distances(t *testing.T) {
 	input := []string{
 		"#..",
