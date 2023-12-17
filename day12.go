@@ -2,75 +2,156 @@ package main
 
 import (
 	"fmt"
-	"math"
-	"regexp"
 	"strings"
 )
 
-func day12_part1(input []string) int {
-	reNum := regexp.MustCompile(`\d+`)
-	sum := 0
+type day12_node struct {
+	result   int
+	valid    bool
+	children [16]*day12_node
+}
 
-	for _, line := range input {
-		// Parse the numbers
-		numTexts := reNum.FindAllString(line, -1)
-		numbers := make([]int, len(numTexts))
-		for i, t := range numTexts {
-			numbers[i] = parseInt(t)
+var day12_cache map[string]*day12_node
+
+func fetchCacheResult(node *day12_node, nums []int) (int, bool) {
+	if len(nums) == 0 {
+		return node.result, node.valid
+	} else {
+		if node.children[nums[0]] == nil {
+			return 0, false
 		}
 
-		// split the line
-		str := strings.Split(line, " ")[0]
-		placeholders := []int{}
+		return fetchCacheResult(node.children[nums[0]], nums[1:])
+	}
+}
 
-		// find placeholders
-		for i, c := range str {
-			if c == '?' {
-				placeholders = append(placeholders, i)
-			}
-		}
+func fetchCacheValue(input string, nums []int) (int, bool) {
+	node, ok := day12_cache[input]
 
-		limit := int(math.Pow(2, float64(len(placeholders))))
-		rePattern := regexp.MustCompile(`#+`)
-		for n := 0; n < limit; n++ {
-			strbuf := []byte(str)
-			for i := 0; i < len(placeholders); i++ {
-				// calculate the bit
-				bit := (n >> i) & 1
-				if bit == 1 {
-					strbuf[placeholders[i]] = '#'
-				} else {
-					strbuf[placeholders[i]] = '.'
-				}
-			}
-			patterns := rePattern.FindAllString(string(strbuf), -1)
+	if ok {
+		value, ok := fetchCacheResult(node, nums)
 
-			if len(patterns) != len(numbers) {
-				// no need to check a patternlist that has a different
-				// length from the numbers we look for
-				continue
-			}
-
-			equal := true
-
-			for i := 0; i < len(patterns); i++ {
-				if numbers[i] != len(patterns[i]) {
-					equal = false
-					break
-				}
-			}
-
-			if equal {
-				sum += 1
-			}
+		if ok {
+			return value, true
 		}
 	}
 
+	return 0, false
+}
+
+func storeCacheResult(node *day12_node, nums []int, result int) {
+	if len(nums) == 0 {
+		node.result = result
+		node.valid = true
+	} else {
+		if node.children[nums[0]] == nil {
+			node.children[nums[0]] = &day12_node{}
+		}
+		storeCacheResult(node.children[nums[0]], nums[1:], result)
+	}
+}
+
+func storeCacheValue(input string, nums []int, result int) {
+	if day12_cache == nil {
+		day12_cache = map[string]*day12_node{}
+	}
+
+	val, ok := day12_cache[input]
+	if !ok {
+		val = &day12_node{}
+		day12_cache[input] = val
+	}
+	storeCacheResult(val, nums, result)
+}
+
+func day12_count(input string, nums []int) int {
+	numlen := len(nums)
+	inputlen := len(input)
+
+	if input == "" {
+		if numlen == 0 {
+			return 1
+		} else {
+			return 0
+		}
+	}
+
+	if numlen == 0 {
+		if strings.ContainsAny(input, "#") {
+			return 0
+		} else {
+			return 1
+		}
+	}
+
+	result, isCached := fetchCacheValue(input, nums)
+
+	if isCached {
+		return result // shortcut :D
+	}
+
+	if strings.ContainsAny(".?", string(input[0])) {
+		result += day12_count(input[1:], nums)
+	}
+
+	if strings.ContainsAny("#?", string(input[0])) {
+		if nums[0] <= inputlen &&
+			!strings.ContainsAny(input[:nums[0]], ".") &&
+			(nums[0] == inputlen || input[nums[0]] != '#') {
+			result += day12_count(input[min(nums[0]+1, inputlen):], nums[1:])
+		}
+	}
+
+	storeCacheValue(input, nums, result)
+
+	return result
+}
+
+func day12_part1(lines []string) int {
+	sum := 0
+	for _, line := range lines {
+		splits := strings.Split(line, " ")
+		input := splits[0]
+		nums := []int{}
+		for _, n := range strings.Split(splits[1], ",") {
+			nums = append(nums, parseInt(n))
+		}
+
+		sum += day12_count(input, nums)
+	}
+	return sum
+}
+
+func day12_part2(lines []string) int {
+	sum := 0
+	for _, line := range lines {
+		splits := strings.Split(line, " ")
+		input := splits[0]
+		input = strings.Join([]string{input, input, input, input, input}, "?")
+
+		nums := []int{}
+		for _, n := range strings.Split(splits[1], ",") {
+			nums = append(nums, parseInt(n))
+		}
+
+		buf := []int{}
+		for i := 0; i < 5; i++ {
+			buf = append(buf, nums...)
+		}
+
+		nums = buf
+
+		sum += day12_count(input, nums)
+	}
 	return sum
 }
 
 func day12() {
 	input := readFileAsLines("data/day12_input.txt")
+
 	result1 := day12_part1(input)
 	fmt.Printf("Day12 part1 result: %d\n", result1)
+
+	result2 := day12_part2(input)
+	fmt.Printf("Day12 part2 result: %d\n", result2)
 }

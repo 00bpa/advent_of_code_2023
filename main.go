@@ -35,7 +35,14 @@ func readFileAsLines(filename string) []string {
 	dat := readFile(filename)
 
 	// Split the lines
-	return strings.Split(strings.ReplaceAll(string(dat), "\r\n", "\n"), "\n")
+	split := strings.Split(strings.ReplaceAll(string(dat), "\r\n", "\n"), "\n")
+
+	// Last line empty?
+	if trimWhitespace(split[len(split)-1]) == "" {
+		return split[:len(split)-1]
+	} else {
+		return split
+	}
 }
 
 func stringSliceToByteArraySlice(input []string) [][]byte {
